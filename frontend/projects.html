@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プロジェクト一覧 - タスク管理アプリ</title>
+  <link rel="stylesheet" href="css/projects.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <span class="header-title">タスク管理アプリ</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="section-header">
+      <h1 class="section-title">プロジェクト一覧</h1>
+      <button class="btn btn-primary" id="btnCreate">新規作成</button>
+    </div>
+
+    <div id="errorBanner" class="error-banner hidden"></div>
+
+    <table class="table" id="projectTable">
+      <thead>
+        <tr>
+          <th class="col-no">No.</th>
+          <th class="col-name">プロジェクト名</th>
+          <th class="col-date">作成日時</th>
+          <th class="col-action">操作</th>
+        </tr>
+      </thead>
+      <tbody id="projectTbody">
+        <tr id="rowEmpty">
+          <td colspan="4" class="empty-message">プロジェクトがありません</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <!-- 作成/編集ダイアログ -->
+  <div class="modal-overlay hidden" id="formModal">
+    <div class="modal">
+      <h2 class="modal-title" id="formModalTitle">プロジェクト作成</h2>
+      <form id="projectForm" novalidate>
+        <input type="hidden" id="editProjectId">
+        <div class="form-group">
+          <label for="projectName">プロジェクト名 <span class="required">*</span></label>
+          <input
+            type="text"
+            id="projectName"
+            class="form-input"
+            maxlength="255"
+            placeholder="プロジェクト名を入力してください"
+          >
+          <p class="field-error hidden" id="projectNameError"></p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="btnFormCancel">キャンセル</button>
+          <button type="submit" class="btn btn-primary" id="btnFormSubmit">作成</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 削除確認ダイアログ -->
+  <div class="modal-overlay hidden" id="deleteModal">
+    <div class="modal">
+      <h2 class="modal-title">プロジェクトを削除しますか？</h2>
+      <p class="modal-message">「<span id="deleteProjectName"></span>」を削除します。<br>紐づくタスクもすべて削除されます。この操作は取り消せません。</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="btnDeleteCancel">キャンセル</button>
+        <button type="button" class="btn btn-danger" id="btnDeleteConfirm">削除</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/projects.js"></script>
+</body>
+</html>
