@@ -1,12 +1,15 @@
-const express = require('express');
+import { Router, Request, Response } from 'express';
+import Database from 'better-sqlite3';
+import { Project, ValidationError } from '../types';
 
-function validateId(id) {
-  const num = Number(id);
+function validateId(id: string | string[]): number | null {
+  const raw = Array.isArray(id) ? id[0] : id;
+  const num = Number(raw);
   return Number.isInteger(num) && num > 0 ? num : null;
 }
 
-function validateName(name) {
-  const errors = [];
+function validateName(name: unknown): ValidationError[] {
+  const errors: ValidationError[] = [];
   if (!name || String(name).trim().length === 0) {
     errors.push({ field: 'name', message: 'プロジェクト名は必須です' });
   } else if (String(name).trim().length > 255) {
@@ -15,17 +18,17 @@ function validateName(name) {
   return errors;
 }
 
-function makeRouter(db) {
-  const router = express.Router();
+function makeRouter(db: Database.Database): Router {
+  const router = Router();
 
   // GET /api/projects - 一覧取得
-  router.get('/', (req, res) => {
-    const projects = db.prepare('SELECT * FROM projects ORDER BY id').all();
+  router.get('/', (req: Request, res: Response) => {
+    const projects = db.prepare('SELECT * FROM projects ORDER BY id').all() as Project[];
     res.json({ projects });
   });
 
   // GET /api/projects/:id - 詳細取得
-  router.get('/:id', (req, res) => {
+  router.get('/:id', (req: Request, res: Response) => {
     const id = validateId(req.params.id);
     if (!id) {
       return res.status(400).json({
@@ -33,7 +36,7 @@ function makeRouter(db) {
       });
     }
 
-    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(id);
+    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as Project | undefined;
     if (!project) {
       return res.status(404).json({ error: 'プロジェクトが見つかりません' });
     }
@@ -42,23 +45,21 @@ function makeRouter(db) {
   });
 
   // POST /api/projects - 作成
-  router.post('/', (req, res) => {
+  router.post('/', (req: Request, res: Response) => {
     const errors = validateName(req.body.name);
     if (errors.length > 0) {
       return res.status(400).json({ errors });
     }
 
     const name = String(req.body.name).trim();
-    const result = db.prepare(
-      'INSERT INTO projects (name) VALUES (?)'
-    ).run(name);
+    const result = db.prepare('INSERT INTO projects (name) VALUES (?)').run(name);
 
-    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(result.lastInsertRowid);
+    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(result.lastInsertRowid) as Project;
     res.status(201).json(project);
   });
 
   // PUT /api/projects/:id - 更新
-  router.put('/:id', (req, res) => {
+  router.put('/:id', (req: Request, res: Response) => {
     const id = validateId(req.params.id);
     if (!id) {
       return res.status(400).json({
@@ -81,12 +82,12 @@ function makeRouter(db) {
       "UPDATE projects SET name = ?, updated_at = datetime('now', 'localtime') WHERE id = ?"
     ).run(name, id);
 
-    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(id);
+    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as Project;
     res.json(project);
   });
 
   // DELETE /api/projects/:id - 削除
-  router.delete('/:id', (req, res) => {
+  router.delete('/:id', (req: Request, res: Response) => {
     const id = validateId(req.params.id);
     if (!id) {
       return res.status(400).json({
@@ -106,4 +107,4 @@ function makeRouter(db) {
   return router;
 }
 
-module.exports = makeRouter;
+export default makeRouter;

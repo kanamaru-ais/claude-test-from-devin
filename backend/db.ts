@@ -1,9 +1,9 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+import Database from 'better-sqlite3';
+import path from 'path';
 
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'database.sqlite');
 
-function createDb(dbPath) {
+export function createDb(dbPath: string): Database.Database {
   const db = new Database(dbPath);
 
   db.pragma('journal_mode = WAL');
@@ -40,6 +40,4 @@ function createDb(dbPath) {
   return db;
 }
 
-const db = createDb(DB_PATH);
-
-module.exports = { db, createDb };
+export const db = createDb(DB_PATH);

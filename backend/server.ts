@@ -1,8 +1,8 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const { db } = require('./db');
-const makeProjectsRouter = require('./routes/projects');
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { db } from './db';
+import makeProjectsRouter from './routes/projects';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,4 +27,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = app;
+export default app;
