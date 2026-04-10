@@ -9,7 +9,8 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "types": ["jest"]
   },
   "include": ["ts/**/*"],
   "exclude": ["node_modules"]

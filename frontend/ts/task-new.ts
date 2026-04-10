@@ -1,3 +1,5 @@
+import { validateTaskTitle, validateDueDate } from './utils';
+
 interface FieldError {
   field: string;
   message: string;
@@ -24,26 +26,18 @@ const btnSubmit       = document.getElementById('btnSubmit') as HTMLButtonElemen
 function validateForm(): boolean {
   let valid = true;
 
-  const title = taskTitle.value.trim();
-  if (title.length === 0) {
-    showFieldError(titleError, taskTitle, 'タイトルは必須です');
-    valid = false;
-  } else if (title.length > 255) {
-    showFieldError(titleError, taskTitle, 'タイトルは255文字以内で入力してください');
+  const titleErr = validateTaskTitle(taskTitle.value);
+  if (titleErr) {
+    showFieldError(titleError, taskTitle, titleErr);
     valid = false;
   } else {
     clearFieldError(titleError, taskTitle);
   }
 
-  const dueDate = taskDueDate.value;
-  if (dueDate) {
-    const today = new Date().toISOString().split('T')[0];
-    if (dueDate < today) {
-      showFieldError(dueDateError, taskDueDate, '期限は今日以降の日付を指定してください');
-      valid = false;
-    } else {
-      clearFieldError(dueDateError, taskDueDate);
-    }
+  const dueDateErr = validateDueDate(taskDueDate.value);
+  if (dueDateErr) {
+    showFieldError(dueDateError, taskDueDate, dueDateErr);
+    valid = false;
   } else {
     clearFieldError(dueDateError, taskDueDate);
   }

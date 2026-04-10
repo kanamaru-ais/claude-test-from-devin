@@ -1,3 +1,5 @@
+import { validateTaskTitle } from './utils';
+
 interface Task {
   id: number;
   title: string;
@@ -47,15 +49,9 @@ async function loadTask(): Promise<void> {
 
 // --- バリデーション ---
 function validateForm(): boolean {
-  const title = taskTitle.value.trim();
-  if (title.length === 0) {
-    titleError.textContent = 'タイトルは必須です';
-    titleError.classList.remove('hidden');
-    taskTitle.classList.add('is-invalid');
-    return false;
-  }
-  if (title.length > 255) {
-    titleError.textContent = 'タイトルは255文字以内で入力してください';
+  const titleErr = validateTaskTitle(taskTitle.value);
+  if (titleErr) {
+    titleError.textContent = titleErr;
     titleError.classList.remove('hidden');
     taskTitle.classList.add('is-invalid');
     return false;

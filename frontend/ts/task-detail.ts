@@ -1,3 +1,5 @@
+import { escapeHtml, formatDatetime } from './utils';
+
 interface Task {
   id: number;
   title: string;
@@ -46,20 +48,7 @@ const commentError  = document.getElementById('commentError') as HTMLParagraphEl
 let taskProjectId: number | null = null;
 
 // --- ユーティリティ ---
-function escapeHtml(str: string): string {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function formatDatetime(dateStr: string): string {
-  if (!dateStr) return '';
-  const d = new Date(dateStr.replace(' ', 'T'));
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
+// escapeHtml, formatDatetime は utils.ts からインポート
 
 function showError(message: string): void {
   errorBanner.textContent = message;
