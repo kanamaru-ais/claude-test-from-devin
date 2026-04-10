@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>タスク詳細 - タスク管理アプリ</title>
+  <link rel="stylesheet" href="/css/task-detail.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <span class="header-title">タスク管理アプリ</span>
+      <nav class="header-nav">
+        <a class="header-link" href="/projects">プロジェクト一覧</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div id="errorBanner" class="error-banner hidden"></div>
+    <div id="loadingMsg" class="loading-msg">読み込み中...</div>
+
+    <div id="taskContent" class="hidden">
+      <!-- タスク情報 -->
+      <section class="card task-info">
+        <h1 class="section-title">タスク詳細</h1>
+
+        <dl class="detail-list">
+          <dt>タイトル</dt>
+          <dd id="taskTitle"></dd>
+
+          <dt>説明</dt>
+          <dd id="taskDescription" class="pre-wrap"></dd>
+
+          <dt>ステータス</dt>
+          <dd class="status-row">
+            <select id="statusSelect" class="select-input">
+              <option value="todo">起票</option>
+              <option value="in_progress">進行中</option>
+              <option value="done">完了</option>
+            </select>
+            <button class="btn btn-sm btn-primary" id="btnUpdateStatus">更新</button>
+            <span class="status-error hidden" id="statusError"></span>
+          </dd>
+
+          <dt>期限</dt>
+          <dd id="taskDueDate"></dd>
+
+          <dt>作成日時</dt>
+          <dd id="taskCreatedAt"></dd>
+        </dl>
+
+        <div class="card-actions">
+          <button class="btn btn-secondary" id="btnBack">戻る</button>
+          <button class="btn btn-primary" id="btnEdit">編集</button>
+        </div>
+      </section>
+
+      <!-- コメントセクション -->
+      <section class="card comment-section">
+        <h2 class="section-title">コメント</h2>
+
+        <div id="commentList" class="comment-list"></div>
+        <div id="noComment" class="no-comment hidden">コメントはありません</div>
+
+        <div class="comment-input-area">
+          <textarea
+            id="commentBody"
+            class="form-textarea"
+            rows="3"
+            placeholder="コメントを入力してください"
+          ></textarea>
+          <p class="field-error hidden" id="commentError"></p>
+          <div class="comment-actions">
+            <button class="btn btn-primary" id="btnPostComment">コメント投稿</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="/js/task-detail.js"></script>
+</body>
+</html>

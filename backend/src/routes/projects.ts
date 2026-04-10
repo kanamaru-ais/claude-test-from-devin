@@ -1,12 +1,25 @@
-const express = require('express');
+import { Router, Request, Response } from 'express';
+import Database from 'better-sqlite3';
 
-function validateId(id) {
-  const num = Number(id);
+interface Project {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface FieldError {
+  field: string;
+  message: string;
+}
+
+function validateId(id: string | string[]): number | null {
+  const num = Number(Array.isArray(id) ? id[0] : id);
   return Number.isInteger(num) && num > 0 ? num : null;
 }
 
-function validateName(name) {
-  const errors = [];
+function validateName(name: unknown): FieldError[] {
+  const errors: FieldError[] = [];
   if (!name || String(name).trim().length === 0) {
     errors.push({ field: 'name', message: 'プロジェクト名は必須です' });
   } else if (String(name).trim().length > 255) {
@@ -15,54 +28,51 @@ function validateName(name) {
   return errors;
 }
 
-function makeRouter(db) {
-  const router = express.Router();
+export function makeProjectsRouter(db: Database.Database): Router {
+  const router = Router();
 
   // GET /api/projects - 一覧取得
-  router.get('/', (req, res) => {
-    const projects = db.prepare('SELECT * FROM projects ORDER BY id').all();
+  router.get('/', (_req: Request, res: Response) => {
+    const projects = db.prepare('SELECT * FROM projects ORDER BY id').all() as Project[];
     res.json({ projects });
   });
 
   // GET /api/projects/:id - 詳細取得
-  router.get('/:id', (req, res) => {
+  router.get('/:id', (req: Request, res: Response) => {
     const id = validateId(req.params.id);
     if (!id) {
       return res.status(400).json({
-        errors: [{ field: 'id', message: 'プロジェクトIDは正の整数で指定してください' }]
+        errors: [{ field: 'id', message: 'プロジェクトIDは正の整数で指定してください' }],
       });
     }
 
-    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(id);
+    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as Project | undefined;
     if (!project) {
       return res.status(404).json({ error: 'プロジェクトが見つかりません' });
     }
 
-    res.json(project);
+    return res.json(project);
   });
 
   // POST /api/projects - 作成
-  router.post('/', (req, res) => {
+  router.post('/', (req: Request, res: Response) => {
     const errors = validateName(req.body.name);
     if (errors.length > 0) {
       return res.status(400).json({ errors });
     }
 
     const name = String(req.body.name).trim();
-    const result = db.prepare(
-      'INSERT INTO projects (name) VALUES (?)'
-    ).run(name);
-
-    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(result.lastInsertRowid);
-    res.status(201).json(project);
+    const result = db.prepare('INSERT INTO projects (name) VALUES (?)').run(name);
+    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(result.lastInsertRowid) as Project;
+    return res.status(201).json(project);
   });
 
   // PUT /api/projects/:id - 更新
-  router.put('/:id', (req, res) => {
+  router.put('/:id', (req: Request, res: Response) => {
     const id = validateId(req.params.id);
     if (!id) {
       return res.status(400).json({
-        errors: [{ field: 'id', message: 'プロジェクトIDは正の整数で指定してください' }]
+        errors: [{ field: 'id', message: 'プロジェクトIDは正の整数で指定してください' }],
       });
     }
 
@@ -77,20 +87,18 @@ function makeRouter(db) {
     }
 
     const name = String(req.body.name).trim();
-    db.prepare(
-      "UPDATE projects SET name = ?, updated_at = datetime('now', 'localtime') WHERE id = ?"
-    ).run(name, id);
+    db.prepare("UPDATE projects SET name = ?, updated_at = datetime('now', 'localtime') WHERE id = ?").run(name, id);
 
-    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(id);
-    res.json(project);
+    const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as Project;
+    return res.json(project);
   });
 
   // DELETE /api/projects/:id - 削除
-  router.delete('/:id', (req, res) => {
+  router.delete('/:id', (req: Request, res: Response) => {
     const id = validateId(req.params.id);
     if (!id) {
       return res.status(400).json({
-        errors: [{ field: 'id', message: 'プロジェクトIDは正の整数で指定してください' }]
+        errors: [{ field: 'id', message: 'プロジェクトIDは正の整数で指定してください' }],
       });
     }
 
@@ -100,10 +108,8 @@ function makeRouter(db) {
     }
 
     db.prepare('DELETE FROM projects WHERE id = ?').run(id);
-    res.status(204).send();
+    return res.status(204).send();
   });
 
   return router;
 }
-
-module.exports = makeRouter;

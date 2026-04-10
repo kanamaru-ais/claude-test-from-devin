@@ -1,11 +1,11 @@
-const request = require('supertest');
-const path = require('path');
-const express = require('express');
-const { createDb } = require('../db');
-const makeProjectsRouter = require('../routes/projects');
+import request from 'supertest';
+import express from 'express';
+import { createDb } from '../db';
+import { makeProjectsRouter } from '../routes/projects';
+import Database from 'better-sqlite3';
 
-let app;
-let db;
+let app: express.Express;
+let db: Database.Database;
 
 beforeEach(() => {
   db = createDb(':memory:');
@@ -26,7 +26,7 @@ describe('GET /api/projects', () => {
   });
 
   test('作成済みプロジェクトを返す', async () => {
-    db.prepare("INSERT INTO projects (name) VALUES (?)").run('テストプロジェクト');
+    db.prepare('INSERT INTO projects (name) VALUES (?)').run('テストプロジェクト');
     const res = await request(app).get('/api/projects');
     expect(res.status).toBe(200);
     expect(res.body.projects).toHaveLength(1);
@@ -36,7 +36,7 @@ describe('GET /api/projects', () => {
 
 describe('GET /api/projects/:id', () => {
   test('存在するIDで200を返す', async () => {
-    const result = db.prepare("INSERT INTO projects (name) VALUES (?)").run('プロジェクトA');
+    const result = db.prepare('INSERT INTO projects (name) VALUES (?)').run('プロジェクトA');
     const res = await request(app).get(`/api/projects/${result.lastInsertRowid}`);
     expect(res.status).toBe(200);
     expect(res.body.name).toBe('プロジェクトA');
@@ -91,7 +91,7 @@ describe('POST /api/projects', () => {
 
 describe('PUT /api/projects/:id', () => {
   test('正常更新で200を返す', async () => {
-    const result = db.prepare("INSERT INTO projects (name) VALUES (?)").run('旧名前');
+    const result = db.prepare('INSERT INTO projects (name) VALUES (?)').run('旧名前');
     const res = await request(app)
       .put(`/api/projects/${result.lastInsertRowid}`)
       .send({ name: '新名前' });
@@ -100,14 +100,12 @@ describe('PUT /api/projects/:id', () => {
   });
 
   test('存在しないIDで404を返す', async () => {
-    const res = await request(app)
-      .put('/api/projects/999')
-      .send({ name: '更新名' });
+    const res = await request(app).put('/api/projects/999').send({ name: '更新名' });
     expect(res.status).toBe(404);
   });
 
   test('name未指定で400を返す', async () => {
-    const result = db.prepare("INSERT INTO projects (name) VALUES (?)").run('プロジェクト');
+    const result = db.prepare('INSERT INTO projects (name) VALUES (?)').run('プロジェクト');
     const res = await request(app)
       .put(`/api/projects/${result.lastInsertRowid}`)
       .send({});
@@ -117,7 +115,7 @@ describe('PUT /api/projects/:id', () => {
 
 describe('DELETE /api/projects/:id', () => {
   test('正常削除で204を返す', async () => {
-    const result = db.prepare("INSERT INTO projects (name) VALUES (?)").run('削除対象');
+    const result = db.prepare('INSERT INTO projects (name) VALUES (?)').run('削除対象');
     const res = await request(app).delete(`/api/projects/${result.lastInsertRowid}`);
     expect(res.status).toBe(204);
   });
@@ -128,7 +126,7 @@ describe('DELETE /api/projects/:id', () => {
   });
 
   test('削除後にGETで取得できない', async () => {
-    const result = db.prepare("INSERT INTO projects (name) VALUES (?)").run('消えるプロジェクト');
+    const result = db.prepare('INSERT INTO projects (name) VALUES (?)').run('消えるプロジェクト');
     const id = result.lastInsertRowid;
     await request(app).delete(`/api/projects/${id}`);
     const res = await request(app).get(`/api/projects/${id}`);
@@ -136,8 +134,8 @@ describe('DELETE /api/projects/:id', () => {
   });
 
   test('プロジェクト削除でタスクもカスケード削除される', async () => {
-    const proj = db.prepare("INSERT INTO projects (name) VALUES (?)").run('カスケードテスト');
-    db.prepare("INSERT INTO tasks (title, project_id) VALUES (?, ?)").run('タスク1', proj.lastInsertRowid);
+    const proj = db.prepare('INSERT INTO projects (name) VALUES (?)').run('カスケードテスト');
+    db.prepare('INSERT INTO tasks (title, project_id) VALUES (?, ?)').run('タスク1', proj.lastInsertRowid);
     await request(app).delete(`/api/projects/${proj.lastInsertRowid}`);
     const tasks = db.prepare('SELECT * FROM tasks WHERE project_id = ?').all(proj.lastInsertRowid);
     expect(tasks).toHaveLength(0);

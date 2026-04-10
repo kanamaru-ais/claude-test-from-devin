@@ -1,4 +1,13 @@
 node_modules/
+
+# データベース
 *.sqlite
 *.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+
+# TypeScript コンパイル成果物
+backend/dist/
+frontend/js/
+
 .claude/

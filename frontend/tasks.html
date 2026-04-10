@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>タスク一覧 - タスク管理アプリ</title>
+  <link rel="stylesheet" href="/css/tasks.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <span class="header-title">タスク管理アプリ</span>
+      <nav class="header-nav">
+        <a class="header-link" href="/projects">プロジェクト一覧</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="section-header">
+      <h1 class="section-title" id="pageTitle">タスク一覧</h1>
+      <button class="btn btn-primary" id="btnCreate">新規作成</button>
+    </div>
+
+    <div id="errorBanner" class="error-banner hidden"></div>
+
+    <div class="filter-row">
+      <label for="statusFilter">ステータス：</label>
+      <select id="statusFilter" class="select-input">
+        <option value="">すべて</option>
+        <option value="todo">起票</option>
+        <option value="in_progress">進行中</option>
+        <option value="done">完了</option>
+      </select>
+    </div>
+
+    <table class="table" id="taskTable">
+      <thead>
+        <tr>
+          <th class="col-no">No.</th>
+          <th class="col-title">タイトル</th>
+          <th class="col-status">ステータス</th>
+          <th class="col-due">期限</th>
+        </tr>
+      </thead>
+      <tbody id="taskTbody">
+        <tr id="rowEmpty">
+          <td colspan="4" class="empty-message">タスクがありません</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <script type="module" src="/js/tasks.js"></script>
+</body>
+</html>
