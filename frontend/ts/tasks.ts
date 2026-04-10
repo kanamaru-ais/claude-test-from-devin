@@ -1,3 +1,5 @@
+import { escapeHtml } from './utils';
+
 interface Task {
   id: number;
   title: string;
@@ -51,14 +53,6 @@ async function fetchProjectName(id: string): Promise<void> {
 }
 
 // --- 表示 ---
-function escapeHtml(str: string): string {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
 function renderTasks(tasks: Task[]): void {
   taskTbody.querySelectorAll('tr.task-row').forEach((r) => r.remove());
 

@@ -1,3 +1,5 @@
+import { escapeHtml, escapeAttr, formatDatetime, validateProjectName } from './utils';
+
 const API_BASE = '/api/projects';
 
 interface Project {
@@ -63,25 +65,6 @@ async function deleteProject(id: string): Promise<Response> {
 }
 
 // --- 表示 ---
-function formatDatetime(dateStr: string): string {
-  if (!dateStr) return '';
-  const d = new Date(dateStr.replace(' ', 'T'));
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function escapeHtml(str: string): string {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function escapeAttr(str: string): string {
-  return String(str).replace(/"/g, '&quot;');
-}
-
 function renderProjects(projects: Project[]): void {
   projectTbody.querySelectorAll('tr.project-row').forEach((r) => r.remove());
 
@@ -166,12 +149,7 @@ function clearFieldError(): void {
   projectName.classList.remove('is-invalid');
 }
 
-function validateProjectName(value: string): string | null {
-  const trimmed = value.trim();
-  if (trimmed.length === 0) return 'プロジェクト名は必須です';
-  if (trimmed.length > 255) return 'プロジェクト名は255文字以内で入力してください';
-  return null;
-}
+// validateProjectName は utils.ts からインポート
 
 // --- 削除モーダル ---
 function openDeleteModal(id: string, name: string): void {
