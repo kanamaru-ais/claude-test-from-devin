@@ -1,0 +1,9 @@
+{
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "no-trailing-whitespace": "off",
+    "require-sri": "off",
+    "no-implicit-button-type": "off",
+    "wcag/h63": "off"
+  }
+}

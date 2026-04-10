@@ -1,0 +1,90 @@
+# ============================================================
+# CI ワークフロー
+# - main ブランチへの push / Pull Request で自動実行
+# - GitHub の Actions タブから手動実行も可能（workflow_dispatch）
+# ============================================================
+name: CI
+
+# --- トリガー設定 ---
+# push: main ブランチにコードが push されたとき自動実行
+# pull_request: main ブランチへの PR が作成・更新されたとき自動実行
+# workflow_dispatch: GitHub Actions タブの「Run workflow」ボタンで手動実行
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  # ========== バックエンドのビルド＆テスト ==========
+  backend:
+    name: Backend Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend  # backend フォルダ内でコマンドを実行
+    steps:
+      # リポジトリのコードをチェックアウト（取得）する
+      - uses: actions/checkout@v4
+
+      # Node.js のバージョンを指定してセットアップ
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 依存パッケージをクリーンインストール（lockfile に従い再現性を確保）
+      - name: Install dependencies
+        run: npm ci
+
+      # TypeScript をコンパイル
+      - name: Build
+        run: npm run build
+
+      # Jest テストを実行
+      - name: Test
+        run: npm test
+
+  # ========== フロントエンドのビルド＆テスト ==========
+  frontend:
+    name: Frontend Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend  # frontend フォルダ内でコマンドを実行
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+  # ========== HTML 検証 ==========
+  # html-validate を使い、frontend/ 内の HTML ファイルを検証する
+  # 検証結果はこのジョブのログに出力される
+  html-validate:
+    name: HTML Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # html-validate を一時的にインストール
+      - name: Install html-validate
+        run: npm install --no-save html-validate
+
+      # frontend/ 配下の全 HTML ファイルを検証し、結果をログに表示
+      - name: Validate HTML files
+        run: npx html-validate "frontend/**/*.html"
